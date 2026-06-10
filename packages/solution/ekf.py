@@ -30,18 +30,18 @@ class EKF:
 
             # Step 2: Calculate the process model Jacobians
             # TODO: Define F and W
-            F = np.array([  [1   0   - dX * np.sin(self.q[2])]
-                            [0   1     dX * np.cos(self.q[2])]
-                            [0   0               1           ]
+            F = np.array([  [1 ,  0,   - dX * np.sin(self.q[2])]
+                            [0  , 1 ,    dX * np.cos(self.q[2])]
+                            [0  , 0   ,            1           ]
                         ])
-            W = np.array([  [np.cos(self.q[2]   0]
-                            [np.sin(self.q[2]   0]
-                            [0                  1]
+            W = np.array([  [np.cos(self.q[2] ,  0]
+                            [np.sin(self.q[2]  , 0]
+                            [0                 , 1]
                         ])
 
             # Step 3: update the covariance estimate
             # TODO: Update this equation
-            self.P = np.dot(np.dot(F,self.P),np.transpose(F)) + np.dot(np.dot(W,self.P),np.transpose(W))
+            self.P = np.dot(np.dot(F,self.P),np.transpose(F)) + np.dot(np.dot(W,self.Q),np.transpose(W))
 
     def update(self, z: np.ndarray, tag_xy: np.ndarray):
         # z is the measurement in the form [range, bearing]
@@ -66,8 +66,8 @@ class EKF:
 
             # Step 3: Calculate the measurement Jacobian
             # TODO: Define H
-            H = np.array([  (-pred_x)/rng_pred      , (-pred_y)/rng_pred    ,  0]
-                         [  (-pred_x)/(rng_pred**2) , (pred_y)/(rng_pred**2) , -1])
+            H = np.array([ [ (-pred_x)/rng_pred      , (-pred_y)/rng_pred    ,  0]
+                         [  (pred_y)/(rng_pred**2) ,  (-pred_x)/(rng_pred**2) , -1]])
 
             # Step 4: Calculate the Kalman gain
             # TODO: Define K
