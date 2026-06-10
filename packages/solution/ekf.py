@@ -22,20 +22,26 @@ class EKF:
 
             # Step 1: update the pose estimate using the kinematic model
             # TODO: Update these equations
-            self.q[0] = self.q[0]
-            self.q[1] = self.q[1]
-            self.q[2] = self.q[2]
+            self.q[0] = self.q[0] + dX * np.cos(self.q[2])
+            self.q[1] = self.q[1] + dX * np.sin(self.q[2])
+            self.q[2] = self.q[2] + dT
 
             self.q[2] = wrap_angle(self.q[2])
 
             # Step 2: Calculate the process model Jacobians
             # TODO: Define F and W
-            F = np.array([])
-            W = np.array([])
+            F = np.array([  [1   0   - dX * np.sin(self.q[2])]
+                            [0   1     dX * np.cos(self.q[2])]
+                            [0   0               1           ]
+                        ])
+            W = np.array([  [np.cos(self.q[2]   0]
+                            [np.sin(self.q[2]   0]
+                            [0                  1]
+                        ])
 
             # Step 3: update the covariance estimate
             # TODO: Update this equation
-            self.P = self.P
+            self.P = np.dot(np.dot(F,P),np.transpose(F)) + np.dot(np.dot(W,P),np.transpose(W))
 
     def update(self, z: np.ndarray, tag_xy: np.ndarray):
         # z is the measurement in the form [range, bearing]
@@ -45,28 +51,33 @@ class EKF:
 
             # Step 1: calculate the predicted range and bearing measurements
             # TODO: update the equations below
-            rng_pred = 1.0
-            bearing_pred = 0.0
+
+            rng_pred = np.sqrt((tag_xy[0] - self.q[0])**2 + (tag_xy[1] - self.q[1])**2)
+            bearing_pred = wrap_angle(np.arctan2(dy, dx) - self.q[2])
             z_pred = np.array([rng_pred, bearing_pred])
 
             # Step 2: Calculate the innovation
             # TODO: Define y
-            y = np.array([0.0, 0.0])
+            y = z - z_pred
             y[1] = wrap_angle(y[1])
 
             # Step 3: Calculate the measurement Jacobian
             # TODO: Define H
-            H = np.array([])
+            H = np.array([  (self.q[0] - tag_xy[0])/rng_pred      , (self.q[1] - tag_xy[1])/rng_pred    ,  0]
+                         [  (self.q[1] - tag_xy[1])/(rng_pred**2) , (tag_xy[0]-self.q[0])/(rng_pred**2) , -1])
 
             # Step 4: Calculate the Kalman gain
             # TODO: Define K
-            K = np.array([])
+            delta = np.dot(np.dot(H,self.P), np.transpose(H)) + self.R
+            K = np.dot(np.dot(self.P,np.transpose(H)),np.linalg.inv(delta))
 
             # Step 5: Update the state and covariance estimates
             # TODO: Update these equations
-            self.q = self.q
+            
+            self.q = self.q + np.dot(K,y)
             self.q[2] = wrap_angle(self.q[2])
-            self.P = self.P
+
+            self.P = self.P - np.dot(np.dot(K,H),self.P)
 
 
 
