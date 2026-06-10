@@ -41,7 +41,7 @@ class EKF:
 
             # Step 3: update the covariance estimate
             # TODO: Update this equation
-            self.P = np.dot(np.dot(F,P),np.transpose(F)) + np.dot(np.dot(W,P),np.transpose(W))
+            self.P = np.dot(np.dot(F,self.P),np.transpose(F)) + np.dot(np.dot(W,self.P),np.transpose(W))
 
     def update(self, z: np.ndarray, tag_xy: np.ndarray):
         # z is the measurement in the form [range, bearing]
@@ -52,8 +52,11 @@ class EKF:
             # Step 1: calculate the predicted range and bearing measurements
             # TODO: update the equations below
 
-            rng_pred = np.sqrt((tag_xy[0] - self.q[0])**2 + (tag_xy[1] - self.q[1])**2)
-            bearing_pred = wrap_angle(np.arctan2(dy, dx) - self.q[2])
+            pred_x = (tag_xy[0] - self.q[0])
+            pred_y = (tag_xy[1] - self.q[1])
+
+            rng_pred = np.sqrt(pred_x**2 + pred_y**2)
+            bearing_pred = wrap_angle(np.arctan2(pred_y, pred_x) - self.q[2])
             z_pred = np.array([rng_pred, bearing_pred])
 
             # Step 2: Calculate the innovation
@@ -63,8 +66,8 @@ class EKF:
 
             # Step 3: Calculate the measurement Jacobian
             # TODO: Define H
-            H = np.array([  (self.q[0] - tag_xy[0])/rng_pred      , (self.q[1] - tag_xy[1])/rng_pred    ,  0]
-                         [  (self.q[1] - tag_xy[1])/(rng_pred**2) , (tag_xy[0]-self.q[0])/(rng_pred**2) , -1])
+            H = np.array([  (-pred_x)/rng_pred      , (-pred_y)/rng_pred    ,  0]
+                         [  (-pred_x)/(rng_pred**2) , (pred_y)/(rng_pred**2) , -1])
 
             # Step 4: Calculate the Kalman gain
             # TODO: Define K
