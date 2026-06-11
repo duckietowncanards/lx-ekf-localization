@@ -24,6 +24,8 @@ class EKF:
             # TODO: Update these equations
             self.q[0] = self.q[0] + dX * np.cos(self.q[2])
             self.q[1] = self.q[1] + dX * np.sin(self.q[2])
+            #self.q[0] = self.q[0] + dX * np.sin(self.q[2])
+            #self.q[1] = self.q[1] + dX * np.cos(self.q[2])
             self.q[2] = self.q[2] + dT
 
             self.q[2] = wrap_angle(self.q[2])
@@ -38,6 +40,14 @@ class EKF:
                             [np.sin(self.q[2])  , 0],
                             [0                 , 1]
                         ])
+            #F = np.array([  [1 ,  0,   dX * np.cos(self.q[2])],
+            #                [0  , 1 ,  -dX * np.sin(self.q[2])],
+            #                [0  , 0   ,            1           ]
+            #            ])
+            #W = np.array([  [np.sin(self.q[2]) ,  0],
+            #                [np.cos(self.q[2])  , 0],
+            #                [0                 , 1]
+            #            ])
 
             # Step 3: update the covariance estimate
             # TODO: Update this equation

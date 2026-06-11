@@ -327,9 +327,13 @@ class EKFLocalizationNode(DTROS):
         # Process each detection
         for detection in detections:
             tag_id = detection.tag_id
+            print("found id")
+            print(tag_id)
             
             # Check if this tag is in our map
             if tag_id not in self.map:
+                print("not in map")
+                print(tag_id)
                 continue
             
             # Get the tag position from the map
@@ -366,6 +370,7 @@ class EKFLocalizationNode(DTROS):
             # Update the EKF with this measurement
             self.ekf.update([range_estimate, bearing], [tag_x, tag_y])
         ids = [det.tag_id for det in detections]
+        print(ids)
         self.publish_landmarks(ids)
         self.publish_detections(image_gray, detections, self.latest_img.header)
         self.publish_pose(self.latest_img.header)
@@ -434,11 +439,14 @@ class EKFLocalizationNode(DTROS):
             m.scale.y = 0.15
             m.scale.z = 0.15
             if landmark_id in detection_ids:
+                print("I found it!")
                 m.color.r = 0.0
                 m.color.g = 0.0
                 m.color.b = 1.0
                 m.color.a = 1.0
             else:
+                print("Not found in map")
+                print(landmark_id)
                 m.color.r = 0.0
                 m.color.g = 1.0
                 m.color.b = 0.0
