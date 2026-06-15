@@ -332,8 +332,6 @@ class EKFLocalizationNode(DTROS):
             
             # Check if this tag is in our map
             if tag_id not in self.map:
-                print("not in map")
-                print(tag_id)
                 continue
             
             # Get the tag position from the map
@@ -343,7 +341,7 @@ class EKFLocalizationNode(DTROS):
             # let's calculate the exact range and bearing using the GT pose and
             # tag location
             if self.gt_pose is None:
-                return
+                continue
             dx = tag_x - self.gt_pose[0]
             dy = tag_y - self.gt_pose[1]
             sim_range_estimate = np.linalg.norm([dx, dy])

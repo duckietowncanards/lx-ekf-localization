@@ -26,9 +26,7 @@ class EKF:
             self.q[1] = self.q[1] + dX * np.sin(self.q[2])
             #self.q[0] = self.q[0] + dX * np.sin(self.q[2])
             #self.q[1] = self.q[1] + dX * np.cos(self.q[2])
-            self.q[2] = self.q[2] + dT
-
-            self.q[2] = wrap_angle(self.q[2])
+            
 
             # Step 2: Calculate the process model Jacobians
             # TODO: Define F and W
@@ -40,6 +38,10 @@ class EKF:
                             [np.sin(self.q[2])  , 0],
                             [0                 , 1]
                         ])
+
+            self.q[2] = self.q[2] + dT
+
+            self.q[2] = wrap_angle(self.q[2])
             #F = np.array([  [1 ,  0,   dX * np.cos(self.q[2])],
             #                [0  , 1 ,  -dX * np.sin(self.q[2])],
             #                [0  , 0   ,            1           ]
